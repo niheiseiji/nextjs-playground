@@ -51,7 +51,7 @@ export default function ValidationPage() {
   const watchFields = watch();
 
   return (
-    <Container>
+    <Container id="pdf-id">
       <CssBaseline />
       <Typography variant="h4">
         React Hook Form × MUIのフォームバリデーションの実装
