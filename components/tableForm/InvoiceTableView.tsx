@@ -20,8 +20,10 @@ type InvoiceTableProps = {
   remove: (index: number) => void;
   handleSubmit: any;
   onSubmit: (data: any) => void;
-  totalAmount: number;
   rowAmounts: number[];
+  rowCostAmounts: number[];
+  totalAmount: number;
+  totalCostAmount: number;
   isValid: boolean;
   calcAll: () => void;
 };
@@ -33,8 +35,10 @@ export const InvoiceTableView: React.FC<InvoiceTableProps> = ({
   remove,
   handleSubmit,
   onSubmit,
-  totalAmount,
   rowAmounts,
+  rowCostAmounts,
+  totalAmount,
+  totalCostAmount,
   isValid,
   calcAll,
 }) => (
@@ -47,12 +51,16 @@ export const InvoiceTableView: React.FC<InvoiceTableProps> = ({
           <TableCell>工数2</TableCell>
           <TableCell>工数3</TableCell>
           <TableCell>合計</TableCell>
+          {rowCostAmounts.map((_val, index) => (
+            <TableCell key={`cost_${index}`}>{`コスト${index}`}</TableCell>
+          ))}
+          <TableCell>合計</TableCell>
           <TableCell>削除</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
         {controlledFields.map((field, index) => (
-          <TableRow key={field.id}>
+          <TableRow key={`row_${field.id}`}>
             <TableCell>
               <TextField
                 {...register(`itemRows.${index}.itemName`)}
@@ -81,6 +89,16 @@ export const InvoiceTableView: React.FC<InvoiceTableProps> = ({
               />
             </TableCell>
             <TableCell>{rowAmounts[index]}</TableCell>
+            {rowCostAmounts.map((_val, idx) => (
+              <TableCell key={`rowCostAmount_${index}_${idx}`}>
+                <TextField
+                  {...register(`itemRows.${index}.costs.${idx}`)}
+                  type="number"
+                  size="small"
+                />
+              </TableCell>
+            ))}
+            <TableCell>{rowCostAmounts[index]}</TableCell>
             <TableCell>
               <IconButton onClick={() => remove(index)}>
                 <DeleteIcon />
@@ -99,7 +117,8 @@ export const InvoiceTableView: React.FC<InvoiceTableProps> = ({
     </Table>
     <Button onClick={calcAll}>合計を計算</Button>
 
-    <Typography>小計: {totalAmount}円</Typography>
+    <Typography>価格合計: {totalAmount}円</Typography>
+    <Typography>コスト合計: {totalCostAmount}円</Typography>
     <Button type="submit" disabled={!isValid}>
       送信
     </Button>

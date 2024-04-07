@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useForm, useFieldArray, useWatch } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { InvoiceTableView } from "./InvoiceTableView";
 
 /**
@@ -14,9 +14,10 @@ import { InvoiceTableView } from "./InvoiceTableView";
  * これは許容するしかないかも。
  */
 
-
 // 行の生成数
-const numRows = 100;
+const numRows = 2;
+// 工数の列数
+const costsCount = 3;
 
 type FormValues = {
   itemRows: {
@@ -24,6 +25,7 @@ type FormValues = {
     unitPrice1: number;
     unitPrice2: number;
     unitPrice3: number;
+    costs: number[];
   }[];
 };
 
@@ -41,6 +43,8 @@ export const InvoiceTableContainer: React.FC = () => {
         unitPrice1: 0,
         unitPrice2: 0,
         unitPrice3: 0,
+        // 列数で動的に生成
+        costs: Array(costsCount).fill(0),
       })),
     },
     mode: "onBlur",
@@ -50,14 +54,21 @@ export const InvoiceTableContainer: React.FC = () => {
     name: "itemRows",
     control,
   });
-  const [totalAmount, setTotalAmount] = useState(0);
   const [rowAmounts, setRowAmounts] = useState(Array(numRows).fill(0));
+  const [totalAmount, setTotalAmount] = useState(0);
+
+  const [rowCostAmounts, setRowCostAmounts] = useState(
+    Array(costsCount).fill(0)
+  );
+  const [totalCostAmount, setTotalCostAmount] = useState(0);
 
   const calcAll = () => {
+    // 実行時点のフォームの値を取得する
     const itemRows = getValues("itemRows");
+
     let totalAmount = 0;
     let rowAmounts: number[] = [];
-    // 各行のsum
+    // 各行の価格のsum
     itemRows.forEach((row) => {
       const amount =
         Number(row.unitPrice1) +
@@ -66,10 +77,24 @@ export const InvoiceTableContainer: React.FC = () => {
       totalAmount += Number(amount);
       rowAmounts.push(Number(amount));
     });
+    console.log(rowAmounts);
+    setRowAmounts(rowAmounts);
+
+    // 各行のコストのsum
+    let totalCostAmount = 0;
+    const newTotalCosts = Array(numRows).fill(0);
+    itemRows.forEach((row, index) => {
+      row.costs.forEach((cost) => {
+        newTotalCosts[index] += Number(cost);
+        totalCostAmount += Number(cost);
+      });
+    });
+    console.log(newTotalCosts);
+    setRowCostAmounts(newTotalCosts);
 
     // 全行の合計値を計算する
     setTotalAmount(totalAmount);
-    setRowAmounts(rowAmounts);
+    setTotalCostAmount(totalCostAmount);
   };
 
   const onSubmit = (data: FormValues) => console.log(data);
@@ -79,15 +104,23 @@ export const InvoiceTableContainer: React.FC = () => {
       controlledFields={fields}
       register={register}
       append={() =>
-        append({ itemName: "", unitPrice1: 0, unitPrice2: 0, unitPrice3: 0 })
+        append({
+          itemName: "",
+          unitPrice1: 0,
+          unitPrice2: 0,
+          unitPrice3: 0,
+          costs: Array(costsCount).fill(0),
+        })
       }
       remove={remove}
       handleSubmit={handleSubmit}
       onSubmit={onSubmit}
-      totalAmount={totalAmount}
       isValid={isValid}
       calcAll={calcAll}
       rowAmounts={rowAmounts}
+      rowCostAmounts={rowCostAmounts}
+      totalAmount={totalAmount}
+      totalCostAmount={totalCostAmount}
     />
   );
 };
