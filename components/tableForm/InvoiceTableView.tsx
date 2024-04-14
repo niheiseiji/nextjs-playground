@@ -20,12 +20,13 @@ type InvoiceTableProps = {
   remove: (index: number) => void;
   handleSubmit: any;
   onSubmit: (data: any) => void;
-  rowAmounts: number[];
   rowCostAmounts: number[];
-  totalAmount: number;
-  totalCostAmount: number;
+  colCostAmounts: number[];
   isValid: boolean;
-  calcAll: () => void;
+  // calcAll: () => void;
+  updateCellValue: (a:number, b:number, c:number) => void;
+  // handleCellValueChange:()=>void;
+  numCol: number;
 };
 
 export const InvoiceTableView: React.FC<InvoiceTableProps> = ({
@@ -35,77 +36,73 @@ export const InvoiceTableView: React.FC<InvoiceTableProps> = ({
   remove,
   handleSubmit,
   onSubmit,
-  rowAmounts,
   rowCostAmounts,
-  totalAmount,
-  totalCostAmount,
+  colCostAmounts,
   isValid,
-  calcAll,
+  // calcAll,
+  updateCellValue,
+  numCol,
 }) => (
   <form onSubmit={handleSubmit(onSubmit)}>
     <Table>
       <TableHead>
         <TableRow>
-          <TableCell>アイテム名</TableCell>
-          <TableCell>工数1</TableCell>
-          <TableCell>工数2</TableCell>
-          <TableCell>工数3</TableCell>
-          <TableCell>合計</TableCell>
-          {rowCostAmounts.map((_val, index) => (
-            <TableCell key={`cost_${index}`}>{`コスト${index}`}</TableCell>
-          ))}
-          <TableCell>合計</TableCell>
           <TableCell>削除</TableCell>
+          <TableCell>テキスト</TableCell>
+          <TableCell>セレクト</TableCell>
+          {Array(numCol)
+            .fill(0)
+            .map((_val, index) => (
+              <TableCell key={`cost_${index}`}>{`コスト${index}`}</TableCell>
+            ))}
+          <TableCell>合計</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
         {controlledFields.map((field, index) => (
           <TableRow key={`row_${field.id}`}>
             <TableCell>
-              <TextField
-                {...register(`itemRows.${index}.itemName`)}
-                size="small"
-              />
-            </TableCell>
-            <TableCell>
-              <TextField
-                {...register(`itemRows.${index}.unitPrice1`)}
-                type="number"
-                size="small"
-              />
-            </TableCell>
-            <TableCell>
-              <TextField
-                {...register(`itemRows.${index}.unitPrice2`)}
-                type="number"
-                size="small"
-              />
-            </TableCell>
-            <TableCell>
-              <TextField
-                {...register(`itemRows.${index}.unitPrice3`)}
-                type="number"
-                size="small"
-              />
-            </TableCell>
-            <TableCell>{rowAmounts[index]}</TableCell>
-            {rowCostAmounts.map((_val, idx) => (
-              <TableCell key={`rowCostAmount_${index}_${idx}`}>
-                <TextField
-                  {...register(`itemRows.${index}.costs.${idx}`)}
-                  type="number"
-                  size="small"
-                />
-              </TableCell>
-            ))}
-            <TableCell>{rowCostAmounts[index]}</TableCell>
-            <TableCell>
               <IconButton onClick={() => remove(index)}>
                 <DeleteIcon />
               </IconButton>
             </TableCell>
+            <TableCell>
+              <TextField
+                {...register(`itemRows.${index}.textItem`)}
+                size="small"
+              />
+            </TableCell>
+            <TableCell>
+              <TextField
+                {...register(`itemRows.${index}.selectItem`)}
+                size="small"
+              />
+            </TableCell>
+            {Array(numCol)
+              .fill(0)
+              .map((_val, idx) => (
+                <TableCell key={`rowCostAmount_${index}_${idx}`}>
+                  <TextField
+                    {...register(`itemRows.${index}.costs.${idx}`)}
+                    type="number"
+                    size="small"
+                    // onBlur={calcAll}
+                    onBlur={(e) => {
+                      const newValue = Number(e.target.value);
+                      updateCellValue(index, idx, newValue);
+                    }}
+                  />
+                </TableCell>
+              ))}
+            <TableCell>{rowCostAmounts[index]}</TableCell>
           </TableRow>
         ))}
+        <TableRow>
+          <TableCell colSpan={3}> </TableCell>
+          {colCostAmounts.map((field, index) => (
+            <TableCell key={`rowCostAmount_${index}`}>{field}</TableCell>
+          ))}
+        </TableRow>
         <TableRow>
           <TableCell colSpan={6}>
             <Button startIcon={<AddIcon />} onClick={append}>
@@ -115,10 +112,8 @@ export const InvoiceTableView: React.FC<InvoiceTableProps> = ({
         </TableRow>
       </TableBody>
     </Table>
-    <Button onClick={calcAll}>合計を計算</Button>
+    {/* <Button onClick={calcAll}>合計を計算</Button> */}
 
-    <Typography>価格合計: {totalAmount}円</Typography>
-    <Typography>コスト合計: {totalCostAmount}円</Typography>
     <Button type="submit" disabled={!isValid}>
       送信
     </Button>

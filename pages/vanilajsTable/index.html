@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dynamic Table with Totals and Row Deletion</title>
+    <style>
+      table,
+      td,
+      th {
+        padding: 0;
+        margin: 0;
+        border: 1px solid rgb(68, 68, 68);
+        border-collapse: collapse;
+        text-align: center;
+      }
+      input {
+        width: 50px;
+        text-align: right;
+      }
+      button {
+        margin-top: 10px;
+      }
+      .draggable {
+        cursor: move;
+      }
+    </style>
+  </head>
+  <body>
+    <table id="data-table">
+      <!-- 表のセルはJavaScriptで生成 -->
+    </table>
+    <button onclick="addRow()">Add Row</button>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const numCols = 3;
+        const numRows = 4;
+        const dataTable = document.getElementById("data-table");
+
+        // let draggedRowIndex = null;
+
+        function initializeTable() {
+          for (let row = 0; row < numRows; row++) {
+            createRow();
+          }
+          createTotalRow();
+        }
+
+        function createRow() {
+          const newRow = dataTable.insertRow(dataTable.rows.length - 1);
+            // newRow.className = isDraggable ? "draggable" : "";
+          //   newRow.draggable = isDraggable;
+          //   newRow.addEventListener("dragstart", handleDragStart, false);
+          //   newRow.addEventListener("dragover", handleDragOver, false);
+          //   newRow.addEventListener("drop", handleDrop, false);
+          //   newRow.addEventListener("dragend", handleDragEnd, false);
+          for (let col = 0; col < numCols; col++) {
+            const cell = newRow.insertCell(-1);
+            const input = document.createElement("input");
+            input.type = "number";
+            input.onblur = calculateTotals;
+            cell.appendChild(input);
+          }
+          newRow.insertCell(-1).textContent = "0"; // Cell for row total
+
+          const deleteButton = document.createElement("button");
+          deleteButton.textContent = "Delete";
+          deleteButton.onclick = function () {
+            dataTable.deleteRow(newRow.rowIndex);
+            calculateTotals();
+          };
+          newRow.insertCell(-1).appendChild(deleteButton);
+        }
+
+        function createTotalRow() {
+          const totalRow = dataTable.insertRow(-1);
+          for (let col = 0; col < numCols; col++) {
+            totalRow.insertCell(-1).textContent = "0"; // Cells for column totals
+          }
+          totalRow.insertCell(-1).textContent = "Total"; // Cell for total label
+          totalRow.insertCell(-1); // Empty cell under the delete button
+        }
+
+        function calculateTotals() {
+          let colTotals = new Array(numCols).fill(0);
+
+          for (let row = 0; row < dataTable.rows.length - 1; row++) {
+            let rowTotal = 0;
+            for (let col = 0; col < numCols; col++) {
+              const input = dataTable.rows[row].cells[col].firstChild;
+              const value = input && input.value ? parseFloat(input.value) : 0;
+              rowTotal += value;
+              colTotals[col] += value;
+            }
+            dataTable.rows[row].cells[numCols].textContent = rowTotal; // Update row total
+          }
+
+          const totalRow = dataTable.rows[dataTable.rows.length - 1];
+          for (let col = 0; col < numCols; col++) {
+            totalRow.cells[col].textContent = colTotals[col]; // Update column totals
+          }
+        }
+
+        function handleDragStart(e) {
+          draggedRowIndex = this.rowIndex;
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/html", this.innerHTML);
+        }
+
+        function handleDragOver(e) {
+          e.preventDefault(); // ドロップを許可
+          e.dataTransfer.dropEffect = "move";
+        }
+
+        function handleDrop(e) {
+          e.stopPropagation(); // ブラウザのリダイレクトを停止
+          if (draggedRowIndex !== this.rowIndex) {
+            // ドラッグされた行とドロップ先行を入れ替える
+            const draggedRow = dataTable.rows[draggedRowIndex];
+            const targetRow = dataTable.rows[this.rowIndex];
+            dataTable.insertBefore(draggedRow, targetRow);
+            draggedRowIndex = null;
+          }
+        }
+
+        function handleDragEnd(e) {
+          // すべての行のドラッグ関連クラスをクリア
+          [].forEach.call(dataTable.rows, function (row) {
+            row.classList.remove("over");
+          });
+        }
+
+        window.addRow = function () {
+          createRow();
+          calculateTotals();
+        };
+
+        initializeTable();
+      });
+    </script>
+  </body>
+</html>
