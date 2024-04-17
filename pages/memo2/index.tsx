@@ -40,17 +40,6 @@ const ColumnSum: FC<ColumnSumProps> = React.memo(
 );
 ColumnSum.displayName = "ColumnSum";
 
-// メモ化してない場合
-// const ColumnSum: FC<ColumnSumProps> = ({ sum, index }) => {
-//   console.log(`[ColumnSum] Rendering Column ${index + 1}`);
-//   return (
-//     <div>
-//       Column {index + 1}: {sum}
-//     </div>
-//   );
-// };
-// ColumnSum.displayName = "ColumnSum";
-
 /**
  *  親コンポーネント
  */
@@ -70,28 +59,6 @@ const ColumnSumsDisplay: FC<ColumnSumsProps> = React.memo(({ matrix }) => {
   );
 });
 ColumnSumsDisplay.displayName = "ColumnSumsDisplay";
-
-// メモ化してない場合
-// const ColumnSumsDisplay: FC<ColumnSumsProps> = ({ matrix }) => {
-//   console.log("[ColumnSumsDisplay]Calculating Column Sums");
-//   // TODO:性能改善
-//   const columnSums = matrix[0].map((_, colIndex) =>
-//     matrix.reduce((sum, row) => sum + row[colIndex], 0)
-//   );
-//   return (
-//     <div>
-//       <h3>Column Sums:</h3>
-//       {columnSums.map((sum, index) => (
-//         <ColumnSum key={index} sum={sum} index={index} />
-//       ))}
-//     </div>
-//   );
-// };
-// ColumnSumsDisplay.displayName = "ColumnSumsDisplay";
-
-// interface RowSumsProps {
-//   matrix: number[][];
-// }
 
 // const RowSumsDisplay: FC<RowSumsProps> = React.memo(({ matrix }) => {
 //   console.log("Calculating Row Sums");
