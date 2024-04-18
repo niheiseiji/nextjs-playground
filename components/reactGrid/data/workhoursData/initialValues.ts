@@ -1,38 +1,36 @@
 export interface WorkLog {
     id: number;
-    date?: Date;
-    project: string;
-    employee: string;
-    hours: number;
+    employeeType: string;//select
+    employeeName: string;
+    cost1: number;
+    cost2: number;
     description: string;
 }
 
-const data = [
-    {
-        id: 0,
-        project: "CRM for construction company",
-        employee: "Christina West",
-        hours: 6,
-        projects: "CRM for construction company",
-        date: "2020-10-12T05:44:32.915Z"
-    },
-    {
-        id: 1,
-        project: "CRM for construction company",
-        employee: "Christina West",
-        hours: 2,
-        projects: "CRM for construction company",
-        date: "2020-10-16T19:27:52.967Z"
-    },
-    // data省略
-]
-
-export const initialWorkhours: WorkLog[] = data.map<WorkLog>(log => ({ ...log, date: new Date(log.date), description: '' }))
-
-export const projects: string[] = [
+export const employeeTypes: string[] = [
     '',
-    'CRM for construction company',
-    'New mobile app',
-    'Advocate office website',
-    'Website for the animal shelter',
+    '社員',
+    '派遣',
 ]
+
+
+// 要素を生成する回数を定義
+const numberOfElements = 10;
+
+// 基本となるオブジェクト
+const baseObject = {
+    employeeType: "社員",
+    employeeName: "サンプル 太郎",
+    hours: 6,
+    cost1: 8,
+    cost2: 8,
+    employeeTypes: "社員",
+};
+
+// IDを連番で割り当てた配列を生成
+const data = Array.from({ length: numberOfElements }, (v, i) => ({
+    id: i,
+    ...baseObject
+}));
+
+export const initialWorkhours: WorkLog[] = data.map<WorkLog>(log => ({ ...log, description: '' }))
