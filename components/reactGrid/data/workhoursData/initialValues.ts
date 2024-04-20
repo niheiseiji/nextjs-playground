@@ -5,7 +5,10 @@ export interface WorkLog {
     cost1: number;
     cost2: number;
     description: string;
+    costs: number[]
 }
+
+export const developMonth: string[] = ['202401', '202402'];
 
 export const employeeTypes: string[] = [
     '',
@@ -13,8 +16,7 @@ export const employeeTypes: string[] = [
     '派遣',
 ]
 
-
-// 要素を生成する回数を定義
+// 生成する要素数(行数)を定義
 const numberOfElements = 10;
 
 // 基本となるオブジェクト
@@ -25,6 +27,7 @@ const baseObject = {
     cost1: 8,
     cost2: 8,
     employeeTypes: "社員",
+    costs: [1, 2],
 };
 
 // IDを連番で割り当てた配列を生成
@@ -33,4 +36,5 @@ const data = Array.from({ length: numberOfElements }, (v, i) => ({
     ...baseObject
 }));
 
-export const initialWorkhours: WorkLog[] = data.map<WorkLog>(log => ({ ...log, description: '' }))
+// ※特にdesctiptionだけ外だししている意図はない
+export const initialWorkhours: WorkLog[] = data.map<WorkLog>(log => ({ ...log, description: "" }))
