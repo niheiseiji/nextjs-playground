@@ -16,7 +16,7 @@ const ReactGridPage: NextPage = () => {
         <li>セル移動ショートカット(方向キー↑←↓→, tabキー)</li>
         <li>プルダウンセル</li>
         <li>集計セル(工数の和)</li>
-        <li>[未実装]列追加</li>
+        <li>列追加</li>
         <li>[未実装]行削除</li>
         <li>[未実装]列削除</li>
         <li>[未実装]ショートカット(ctrl+z,ctrl+y)</li>
