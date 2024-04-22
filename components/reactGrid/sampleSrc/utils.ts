@@ -80,6 +80,7 @@ export const getTextCell = (text?: string, nonEditable?: boolean): TextCell => (
 export const getHeaderCell = (text?: string, background?: string): HeaderCell => ({ type: 'header', text: text || '', style: { background, ...transparentBorderStyle } })
 
 export const getCellValue = (change: CellChange<CustomTypes>) => {
+    console.log(83)
     const { newCell } = change;
     switch (newCell.type) {
         case 'number':
@@ -119,6 +120,7 @@ export const generateCells = (log: WorkLog, deleteHandler: (id: number) => void)
 export const transformLogsToModel = (logs: WorkLog[], height: number, deleteHandler: (id: number) => void): Row<CustomTypes>[] => {
     return logs.map((log, _idx) => ({
         rowId: log.id,
+        reorderable: true,
         height,
         cells: generateCells(log, deleteHandler),
     }))

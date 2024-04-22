@@ -8,7 +8,7 @@ export interface WorkLog {
     costs: number[]
 }
 
-export const developMonth: string[] = ['202401', '202402'];
+export const developMonthInitialData: string[] = ['202401', '202402'];
 
 export const employeeTypes: string[] = [
     '',
@@ -17,7 +17,7 @@ export const employeeTypes: string[] = [
 ]
 
 // 生成する要素数(行数)を定義
-const numberOfElements = 10;
+const numberOfElements = 2;
 
 // 基本となるオブジェクト
 const baseObject = {
