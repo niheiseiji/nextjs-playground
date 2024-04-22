@@ -16,8 +16,8 @@ interface Person {
 }
 
 const getPeople = (): Person[] => [
-    { name: "Thomas", surname: "Goldman" },
-    { name: "Susie", surname: "Quattro" },
+    { name: "テスト太郎", surname: "test text 1" },
+    { name: "テスト次郎", surname: "test text 2" },
     { name: "", surname: "" }
 ];
 
@@ -30,7 +30,7 @@ const headerRow: Row = {
     rowId: "header",
     cells: [
         { type: "header", text: "Name" },
-        { type: "header", text: "Surname" }
+        { type: "header", text: "Note" }
     ]
 };
 
@@ -137,11 +137,11 @@ export const UndoRedoSample: React.FC = () => {
             }}
         >
             <ReactGrid rows={rows} columns={columns} onCellsChanged={handleChanges} enableRangeSelection
-                enableColumnSelection
-                enableRowSelection />
-            <button onClick={handleUndoChanges}>Undo</button>
-            <button onClick={handleRedoChanges}>Redo</button>
-            <div>
+                enableColumnSelection />
+            <button onClick={handleUndoChanges}>戻る</button>
+            <button onClick={handleRedoChanges}>進む</button>
+            {/* debug */}
+            {/* <div>
                 <strong>People:</strong>
                 <pre>{JSON.stringify(people, null, 2)}</pre>
             </div>
@@ -152,7 +152,7 @@ export const UndoRedoSample: React.FC = () => {
             <div>
                 <strong>Cell Changes:</strong>
                 <pre>{JSON.stringify(cellChanges, null, 2)}</pre>
-            </div>
+            </div> */}
         </div>
     );
 }
