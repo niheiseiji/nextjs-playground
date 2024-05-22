@@ -1,0 +1,27 @@
+import React, { useState, useEffect, useMemo } from "react";
+import { WorkhoursGrid } from "./WorkhoursGrid";
+import { HuePicker, HSLColor } from 'react-color';
+
+const fontSizes = ['xx-small', 'x-small', 'small', 'smaller', 'medium', 'large', 'larger', 'x-large', 'xx-large']
+
+export const WorkhoursSample = () => {
+    const [rowHeight, setRowHeight] = useState<number>(35);
+    const [color, setColor] = useState<HSLColor>({ h: 209, s: 1, l: 0.5 });
+    const [fontFamily, setFontFamily] = useState<string>('Helvetica');
+    const [fontSizeIdx, setFontSizeIdx] = useState<number>(4);
+
+    const hslColor = useMemo(() => `${Math.floor(color.h)},${Math.floor(color.s * 100)}%,${Math.floor(color.l * 100) + 25}%`, [color])
+
+    useEffect(() => {
+        const root = document.documentElement;
+        root.style.setProperty('--primary', hslColor);
+        root.style.setProperty('--font', fontFamily);
+    }, [hslColor, fontFamily])
+    return (
+        <>
+            <div style={{ fontFamily, fontSize: fontSizes[fontSizeIdx], display: 'inline-block', overflow: 'scroll', maxWidth: '100%' }}>
+                <WorkhoursGrid rowHeight={rowHeight} color={`hsla(${hslColor}, 0.75)`} />
+            </div>
+        </>
+    );
+}
