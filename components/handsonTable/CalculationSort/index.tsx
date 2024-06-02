@@ -80,13 +80,13 @@ const HandsontableComponent: React.FC<HandsontableComponentProps> = ({
   }, [numRows]);
 
   const excludeSort = () => {
-    const hotInstance = hotTableRef.current.hotInstance
-    const lastRowIndex = hotInstance.countRows() - 1
+    const hotInstance = hotTableRef.current.hotInstance;
+    const lastRowIndex = hotInstance.countRows() - 1;
 
     // 各ソートの後、行 1 を取り出し、そのインデックスを 0 に変更します。
-    hotInstance.rowIndexMapper.moveIndexes(hotInstance.toVisualRow(0),0)
+    hotInstance.rowIndexMapper.moveIndexes(hotInstance.toVisualRow(0), 0);
     // 各ソートの後、行16を取り、そのインデックスを15に変更する。
-    hotInstance.rowIndexMapper.moveIndexes(hotInstance.toVisualRow(lastRowIndex),lastRowIndex)
+    hotInstance.rowIndexMapper.moveIndexes(hotInstance.toVisualRow(lastRowIndex), lastRowIndex);
   };
 
   const excludeFilter = () => {
@@ -95,26 +95,47 @@ const HandsontableComponent: React.FC<HandsontableComponentProps> = ({
 
     // 0行目をfilterしない
     filtersRowsMap.setValueAtIndex(0, false);
-    // 最終行をfilterしない
+    // 最終行目をfilterしない
     filtersRowsMap.setValueAtIndex(filtersRowsMap.indexedValues.length - 1, false);
+  };
+
+  const removeRow = (rowIndex: number) => {
+    let hotInstance = hotTableRef.current.hotInstance
+    hotInstance.alter('remove_row', rowIndex)
+  };
+
+
+  const buttonRenderer = (instance, td, row, col, prop, value, cellProperties) => {
+    Handsontable.dom.empty(td);
+    const button = document.createElement("button");
+    button.innerHTML = "Remove";
+    button.onclick = () => removeRow(row);
+    td.appendChild(button);
+    return td;
   };
 
   return (
     <HotTable
       ref={hotTableRef}
       data={data}
-      colHeaders={["Column 1", "Column 2", "Column 3", "Sum"]}
+      colHeaders={["Remove", "Column 1", "Column 2", "Column 3", "Sum"]}
       rowHeaders={true}
-      width="600"
+      width="900"
       height="300"
       licenseKey="non-commercial-and-evaluation"
       fixedRowsBottom={1}
       columnSorting={true}
       afterColumnSort={excludeSort}
       filters={true}
+      contextMenu={true}
       dropdownMenu={true}
       afterFilter={excludeFilter}
       columns={[
+        {
+          data: "",
+          renderer: buttonRenderer,
+          readOnly: true,
+        },
         { data: 0, type: "numeric" },
         { data: 1, type: "numeric" },
         { data: 2, type: "numeric" },
