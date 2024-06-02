@@ -2,9 +2,11 @@ import React from 'react';
 import { NextPage } from 'next';
 import "@silevis/reactgrid/styles.css";
 import { UndoRedoSample } from '@/components/reactGrid/undoredo/UndoRedoSample';
+import axios from 'axios';
 
 
 const ReactGridPage: NextPage = () => {
+
   return (
     <>
       <h1>スプレッドシートUI 戻る進む(Ctrl+z,y) サンプル (reactGrid - 無償ライブラリ)</h1>
