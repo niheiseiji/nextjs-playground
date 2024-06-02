@@ -65,7 +65,7 @@ class HandsOnTablePage extends Component<IProps, IState> {
 
   render() {
     return (
-      <div>
+      <>
         <HotTable
           data={this.state.data}
           colHeaders={true}
@@ -83,18 +83,7 @@ class HandsOnTablePage extends Component<IProps, IState> {
           licenseKey="non-commercial-and-evaluation"
           afterChange={this.afterChange}
         />
-        <h3>スプレットシート機能</h3>
-        <ul>
-          <li>プルダウンセル</li>
-          <li>集計セル(工数の和)</li>
-          <li>ショートカット(ctrl+z, ctrl+y, ctrl+c, ctrl+v, 方向キー移動, tabキー移動)</li>
-          <li>オートフィル※選択値のコピー</li>
-          <li>[未実装]行追加</li>
-          <li>[未実装]列追加</li>
-          <li>[未実装]行削除</li>
-          <li>[未実装]列削除</li>
-        </ul>
-      </div>
+      </>
     );
   }
 }
