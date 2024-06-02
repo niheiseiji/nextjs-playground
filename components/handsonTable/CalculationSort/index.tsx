@@ -79,14 +79,24 @@ const HandsontableComponent: React.FC<HandsontableComponentProps> = ({
     setData(generateRandomData(numRows));
   }, [numRows]);
 
-  const exclude = () => {
-    const handsontableInstance = hotTableRef.current.hotInstance
-    const lastRowIndex = handsontableInstance.countRows() - 1
+  const excludeSort = () => {
+    const hotInstance = hotTableRef.current.hotInstance
+    const lastRowIndex = hotInstance.countRows() - 1
 
     // 各ソートの後、行 1 を取り出し、そのインデックスを 0 に変更します。
-    // handsontableInstance.rowIndexMapper.moveIndexes(handsontableInstance.toVisualRow(0),0)
+    hotInstance.rowIndexMapper.moveIndexes(hotInstance.toVisualRow(0),0)
     // 各ソートの後、行16を取り、そのインデックスを15に変更する。
-    handsontableInstance.rowIndexMapper.moveIndexes(handsontableInstance.toVisualRow(lastRowIndex),lastRowIndex)
+    hotInstance.rowIndexMapper.moveIndexes(hotInstance.toVisualRow(lastRowIndex),lastRowIndex)
+  };
+
+  const excludeFilter = () => {
+    let hotInstance = hotTableRef.current.hotInstance;
+    let filtersRowsMap = hotInstance.getPlugin('filters').filtersRowsMap;
+
+    // 0行目をfilterしない
+    filtersRowsMap.setValueAtIndex(0, false);
+    // 最終行をfilterしない
+    filtersRowsMap.setValueAtIndex(filtersRowsMap.indexedValues.length - 1, false);
   };
 
   return (
@@ -100,7 +110,10 @@ const HandsontableComponent: React.FC<HandsontableComponentProps> = ({
       licenseKey="non-commercial-and-evaluation"
       fixedRowsBottom={1}
       columnSorting={true}
-      afterColumnSort={exclude}
+      afterColumnSort={excludeSort}
+      filters={true}
+      dropdownMenu={true}
+      afterFilter={excludeFilter}
       columns={[
         { data: 0, type: "numeric" },
         { data: 1, type: "numeric" },
