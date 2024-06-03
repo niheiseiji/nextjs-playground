@@ -17,7 +17,7 @@ const App = () => {
   return (
     <>
       {/* <IMEcontrol/> */}
-      <CalculattionSort numRows={300}/>
+      <CalculattionSort numRows={20}/>
       {/* <KeyValueAutocomplete />
       <HandsontableComponent />
       <CalculateSample />

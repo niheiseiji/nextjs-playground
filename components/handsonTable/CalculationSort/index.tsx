@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Handsontable from "handsontable";
 import { HotTable } from "@handsontable/react";
 import "handsontable/dist/handsontable.full.min.css";
@@ -53,8 +53,8 @@ const HandsontableComponent: React.FC<HandsontableComponentProps> = ({
   numRows,
 }) => {
   const hotTableRef = useRef<HotTable>(null);
-  const [data, setData] = React.useState<any[][]>(generateRandomData(numRows));
-
+  const [data, setData] = useState<any[][]>(generateRandomData(numRows));
+  const [numRowsState, setNumRowsState] = useState(numRows);
 
   const afterSelectionEnd = (r, c, r2, c2) => {
     // 単一セルが選択されたとき
@@ -78,28 +78,25 @@ const HandsontableComponent: React.FC<HandsontableComponentProps> = ({
     const cellValue = hotInstance.getDataAtCell(r, c);
     activeEditor.beginEditing();
     hotInstance.setDataAtCell(r, c, cellValue, 'system');
-  }
+  };
 
   useEffect(() => {
     if (hotTableRef.current) {
-      // Handsontableの設定を更新する
       hotTableRef.current.hotInstance.updateSettings({
         afterChange: (changes) => {
           if (changes) {
             changes.forEach(([row, prop, oldValue, newValue]) => {
               const colIndex = parseInt(prop as string, 10);
-              if (row < numRows && (colIndex === 3 || colIndex === 4 || colIndex === 5)) {
+              if (row < numRowsState && (colIndex === 3 || colIndex === 4 || colIndex === 5)) {
                 const updatedData = data.map((rowData, rowIndex) => {
                   if (rowIndex === row) {
-                    console.log("newValue")
-                    console.log(newValue)
                     rowData[colIndex] = newValue === "" || newValue === null ? 0 : parseInt(newValue as string, 10);
                     rowData[6] = rowData[3] + rowData[4] + rowData[5];
                   }
                   return rowData;
                 });
 
-                const sumRow = updatedData.slice(0, numRows).reduce(
+                const sumRow = updatedData.slice(0, numRowsState).reduce(
                   (acc, row) => {
                     return row.map((num, index) => {
                       if (typeof num === "number") {
@@ -116,25 +113,58 @@ const HandsontableComponent: React.FC<HandsontableComponentProps> = ({
                 sumRow[7] = "";
                 sumRow[8] = "";
 
-                updatedData[numRows] = sumRow;
+                updatedData[numRowsState] = sumRow;
                 setData(updatedData);
               }
             });
           }
+        },
+        afterRemoveRow: () => {
+          // 行が削除された後にフォーカスをリセットする(小計行にフォーカスがあるままredoするとエラー起きる)
+          hotTableRef.current.hotInstance.deselectCell();
+          setTimeout(() => {
+            hotTableRef.current.hotInstance.render();
+          }, 0);
         }
       });
     }
-  }, [data, numRows]); // データまたは行数が変更されたときにこのエフェクトを実行する
-
-  useEffect(() => {
-    // 行数が変更されたときに新しいデータを生成する
-    setData(generateRandomData(numRows));
-  }, [numRows]); // 行数が変更されたときにこのエフェクトを実行する
+  }, [data, numRowsState]); // データまたは行数が変更されたときにこのエフェクトを実行する
 
   const removeRow = (rowIndex: number) => {
     let hotInstance = hotTableRef.current.hotInstance;
     hotInstance.alter("remove_row", rowIndex);
+    setNumRowsState((prevNumRows) => prevNumRows - 1);
   };
+
+  const addRow = () => {
+    const hotInstance = hotTableRef.current.hotInstance;
+    const newRowIndex = numRowsState;
+
+    // 新しい行を追加
+    hotInstance.alter('insert_row_above', newRowIndex);
+
+    // 新しい行のデータを設定
+    const newRowData = [
+      Math.floor(Math.random() * 100), // 数値
+      "新しいテキスト", // テキスト
+      "選択肢1", // ドロップダウン
+      Math.floor(Math.random() * 100), // 数値
+      Math.floor(Math.random() * 100), // 数値
+      Math.floor(Math.random() * 100), // 数値
+      0, // 合計は初期値0
+      "新しいテキスト", // テキスト
+      "選択肢2", // ドロップダウン
+    ];
+
+    // 各セルに値を設定
+    newRowData.forEach((value, colIndex) => {
+      hotInstance.setDataAtCell(newRowIndex, colIndex, value);
+    });
+
+    // 行数のステートを更新
+    setNumRowsState(prevNumRows => prevNumRows + 1);
+  };
+
 
   const buttonRenderer = (instance, td, row, col, prop, value, cellProperties) => {
     Handsontable.dom.empty(td);
@@ -149,58 +179,60 @@ const HandsontableComponent: React.FC<HandsontableComponentProps> = ({
     return td;
   };
 
-
   return (
-    <HotTable
-      ref={hotTableRef}
-      data={data}
-      colHeaders={[
-        "Remove",
-        "Column 1 (Text)",
-        "Column 2 (Dropdown)",
-        "Column 3",
-        "Column 4",
-        "Column 5",
-        "Sum",
-        "Column 7 (Text)",
-        "Column 8 (Dropdown)",
-      ]}
-      rowHeaders={(index) => (index === numRows ? "小計" : index + 1)} // 最終行のみ「小計」に設定
-      width="99vw"
-      height="80vh"
-      licenseKey="non-commercial-and-evaluation"
-      fixedRowsBottom={1}
-      columnSorting={true}
-      afterColumnSort={() => excludeSort(hotTableRef)}
-      filters={true}
-      contextMenu={true}
-      dropdownMenu={true}
-      afterFilter={() => excludeFilter(hotTableRef)}
-      afterSelectionEnd={afterSelectionEnd}
-      columns={[
-        {
-          data: "",
-          renderer: buttonRenderer,
-          readOnly: true,
-        },
-        { data: 1, type: "text" }, // テキスト
-        {
-          data: 2,
-          type: "dropdown",
-          source: ["選択肢1", "選択肢2", "選択肢3"],
-        }, // ドロップダウン
-        { data: 3, type: "numeric" }, // 数値
-        { data: 4, type: "numeric" }, // 数値
-        { data: 5, type: "numeric" }, // 数値
-        { data: 6, type: "numeric", readOnly: true }, // 合計
-        { data: 7, type: "text" }, // テキスト
-        {
-          data: 8,
-          type: "dropdown",
-          source: ["選択肢1", "選択肢2", "選択肢3"],
-        }, // ドロップダウン
-      ]}
-    />
+    <div>
+      <button onClick={addRow}>行を追加</button>
+      <HotTable
+        ref={hotTableRef}
+        data={data}
+        colHeaders={[
+          "Remove",
+          "Column 1 (Text)",
+          "Column 2 (Dropdown)",
+          "Column 3",
+          "Column 4",
+          "Column 5",
+          "Sum",
+          "Column 7 (Text)",
+          "Column 8 (Dropdown)",
+        ]}
+        rowHeaders={(index) => (index === numRowsState ? "小計" : index + 1)}
+        width="99vw"
+        height="80vh"
+        licenseKey="non-commercial-and-evaluation"
+        fixedRowsBottom={1}
+        columnSorting={true}
+        afterColumnSort={() => excludeSort(hotTableRef)}
+        filters={true}
+        contextMenu={true}
+        dropdownMenu={true}
+        afterFilter={() => excludeFilter(hotTableRef)}
+        afterSelectionEnd={afterSelectionEnd}
+        columns={[
+          {
+            data: "",
+            renderer: buttonRenderer,
+            readOnly: true,
+          },
+          { data: 1, type: "text" },
+          {
+            data: 2,
+            type: "dropdown",
+            source: ["選択肢1", "選択肢2", "選択肢3"],
+          },
+          { data: 3, type: "numeric" },
+          { data: 4, type: "numeric" },
+          { data: 5, type: "numeric" },
+          { data: 6, type: "numeric", readOnly: true },
+          { data: 7, type: "text" },
+          {
+            data: 8,
+            type: "dropdown",
+            source: ["選択肢1", "選択肢2", "選択肢3"],
+          },
+        ]}
+      />
+    </div>
   );
 };
 
