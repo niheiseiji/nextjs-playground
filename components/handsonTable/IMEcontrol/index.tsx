@@ -24,24 +24,24 @@ const MyHandsontable = () => {
         ) return;
 
         // 強制入力モード パターン１：セルフォーカスして1文字目を強制的に入れ込むことで回避
-        // const activeEditor = hotInstance.getActiveEditor();
-        // const cellValue = hotInstance.getDataAtCell(r, c);
-        // activeEditor.beginEditing();
-        // hotInstance.setDataAtCell(r, c, cellValue, 'system');
-
-        // 強制入力モード パターン２：プルダウンはデフォで開く挙動にすることで回避
         const activeEditor = hotInstance.getActiveEditor();
         const cellValue = hotInstance.getDataAtCell(r, c);
+        activeEditor.beginEditing();
+        hotInstance.setDataAtCell(r, c, cellValue, 'system');
+
+        // 強制入力モード パターン２：プルダウンはデフォで開く挙動にすることで回避
+        // const activeEditor = hotInstance.getActiveEditor();
+        // const cellValue = hotInstance.getDataAtCell(r, c);
 
         // 特定のエディタの場合にフォーカスを適切に管理する
-        if (cellMeta.editor === Handsontable.editors.TextEditor) {
-            activeEditor.beginEditing();
-            hotInstance.setDataAtCell(r, c, cellValue, 'system');
-        } else {
-            setTimeout(() => {
-                activeEditor.beginEditing();
-            }, 0);
-        }
+        // if (cellMeta.editor === Handsontable.editors.TextEditor) {
+        //     activeEditor.beginEditing();
+        //     hotInstance.setDataAtCell(r, c, cellValue, 'system');
+        // } else {
+        //     setTimeout(() => {
+        //         activeEditor.beginEditing();
+        //     }, 0);
+        // }
     };
 
     return (
