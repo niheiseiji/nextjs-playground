@@ -16,13 +16,13 @@ registerAllModules();
 const App = () => {
   return (
     <>
-      <IMEcontrol/>
+      {/* <IMEcontrol/> */}
       <CalculattionSort numRows={300}/>
-      <KeyValueAutocomplete />
+      {/* <KeyValueAutocomplete />
       <HandsontableComponent />
       <CalculateSample />
       <ButtonRenderer />
-      <ReCulcComponent />
+      <ReCulcComponent /> */}
     </>
   );
 };
