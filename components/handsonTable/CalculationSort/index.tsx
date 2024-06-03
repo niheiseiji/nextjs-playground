@@ -27,17 +27,14 @@ const generateRandomData = (numRows: number): any[][] => {
   }
 
   // 最終行を追加
-  const sumRow = data.reduce(
-    (acc, row) => {
-      return row.map((num, index) => {
-        if (typeof num === "number") {
-          return acc[index] + num;
-        }
-        return acc[index];
-      });
-    },
-    Array(data[0].length).fill(0)
-  );
+  const sumRow = data.reduce((acc, row) => {
+    return row.map((num, index) => {
+      if (typeof num === "number") {
+        return acc[index] + num;
+      }
+      return acc[index];
+    });
+  }, Array(data[0].length).fill(0));
 
   // テキストとドロップダウンのセルを空にする
   sumRow[1] = "";
@@ -71,13 +68,14 @@ const HandsontableComponent: React.FC<HandsontableComponentProps> = ({
       cellMeta.editor !== Handsontable.editors.TextEditor &&
       cellMeta.editor !== Handsontable.editors.DropdownEditor &&
       cellMeta.editor !== Handsontable.editors.AutocompleteEditor
-    ) return;
+    )
+      return;
 
     // 強制入力モード パターン１：セルフォーカスして1文字目を強制的に入れ込むことで回避
     const activeEditor = hotInstance.getActiveEditor();
     const cellValue = hotInstance.getDataAtCell(r, c);
     activeEditor.beginEditing();
-    hotInstance.setDataAtCell(r, c, cellValue, 'system');
+    hotInstance.setDataAtCell(r, c, cellValue, "system");
   };
 
   useEffect(() => {
@@ -87,26 +85,31 @@ const HandsontableComponent: React.FC<HandsontableComponentProps> = ({
           if (changes) {
             changes.forEach(([row, prop, oldValue, newValue]) => {
               const colIndex = parseInt(prop as string, 10);
-              if (row < numRowsState && (colIndex === 3 || colIndex === 4 || colIndex === 5)) {
+              if (
+                row < numRowsState &&
+                (colIndex === 3 || colIndex === 4 || colIndex === 5)
+              ) {
                 const updatedData = data.map((rowData, rowIndex) => {
                   if (rowIndex === row) {
-                    rowData[colIndex] = newValue === "" || newValue === null ? 0 : parseInt(newValue as string, 10);
+                    rowData[colIndex] =
+                      newValue === "" || newValue === null
+                        ? 0
+                        : parseInt(newValue as string, 10);
                     rowData[6] = rowData[3] + rowData[4] + rowData[5];
                   }
                   return rowData;
                 });
 
-                const sumRow = updatedData.slice(0, numRowsState).reduce(
-                  (acc, row) => {
+                const sumRow = updatedData
+                  .slice(0, numRowsState)
+                  .reduce((acc, row) => {
                     return row.map((num, index) => {
                       if (typeof num === "number") {
                         return acc[index] + num;
                       }
                       return acc[index];
                     });
-                  },
-                  Array(data[0].length).fill(0)
-                );
+                  }, Array(data[0].length).fill(0));
 
                 sumRow[1] = "";
                 sumRow[2] = "";
@@ -122,26 +125,37 @@ const HandsontableComponent: React.FC<HandsontableComponentProps> = ({
         afterRemoveRow: () => {
           // 行が削除された後にフォーカスをリセットする(小計行にフォーカスがあるままredoするとエラー起きる)
           hotTableRef.current.hotInstance.deselectCell();
-          setTimeout(() => {
-            hotTableRef.current.hotInstance.render();
-          }, 0);
-        }
+          updateSumRow();
+        },
       });
     }
   }, [data, numRowsState]); // データまたは行数が変更されたときにこのエフェクトを実行する
 
-  const removeRow = (rowIndex: number) => {
-    let hotInstance = hotTableRef.current.hotInstance;
-    hotInstance.alter("remove_row", rowIndex);
-    setNumRowsState((prevNumRows) => prevNumRows - 1);
-  };
+  const updateSumRow = () => {
+    const updatedData = data.slice(0, numRowsState);
 
+    const sumRow = updatedData.reduce((acc, row) => {
+      return row.map((num, index) => {
+        if (typeof num === "number") {
+          return acc[index] + num;
+        }
+        return acc[index];
+      });
+    }, Array(data[0].length).fill(0));
+
+    sumRow[1] = "";
+    sumRow[2] = "";
+    sumRow[7] = "";
+    sumRow[8] = "";
+
+    setData([...updatedData, sumRow]);
+  };
   const addRow = () => {
     const hotInstance = hotTableRef.current.hotInstance;
     const newRowIndex = numRowsState;
 
     // 新しい行を追加
-    hotInstance.alter('insert_row_above', newRowIndex);
+    hotInstance.alter("insert_row_above", newRowIndex);
 
     // 新しい行のデータを設定
     const newRowData = [
@@ -158,18 +172,33 @@ const HandsontableComponent: React.FC<HandsontableComponentProps> = ({
 
     // 各セルに値を設定
     newRowData.forEach((value, colIndex) => {
-      hotInstance.setDataAtCell(newRowIndex, colIndex, value);
+      hotInstance.setSourceDataAtCell(newRowIndex, colIndex, value);
     });
 
-    // 行数のステートを更新
-    setNumRowsState(prevNumRows => prevNumRows + 1);
+    setNumRowsState((prevNumRows) => prevNumRows + 1);
+    updateSumRow();
   };
 
+  const removeRow = (rowIndex: number) => {
+    const hotInstance = hotTableRef.current.hotInstance;
+    hotInstance.alter("remove_row", rowIndex);
+    setNumRowsState((prevNumRows) => prevNumRows - 1);
+    updateSumRow();
+  };
 
-  const buttonRenderer = (instance, td, row, col, prop, value, cellProperties) => {
+  const buttonRenderer = (
+    instance,
+    td,
+    row,
+    col,
+    prop,
+    value,
+    cellProperties
+  ) => {
     Handsontable.dom.empty(td);
     const currentNumRows = data.length - 1; // 最終行のインデックスを取得
-    if (row < currentNumRows) { // 最終行でない場合にのみボタンを追加
+    if (row < currentNumRows) {
+      // 最終行でない場合にのみボタンを追加
       const button = document.createElement("button");
       button.innerHTML = "削除";
       button.className = "small-button"; // CSSクラスを追加
