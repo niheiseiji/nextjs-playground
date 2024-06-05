@@ -20,10 +20,11 @@ const HandsontableComponent = () => {
             hotInstance.loadData(updatedData);
             applyMetadata(updatedData, hotInstance); // 初期化時にメタデータを設定
         }
-    }, []);
+    }, [tableData]);
 
     // テーブルデータ変更後のフック
     const handleAfterChange = (changes, source) => {
+        console.log('handleAfterChange')
         if (changes) {
             const hotInstance = hotTableRef.current.hotInstance;
             const newData = [...hotInstance.getData()];
