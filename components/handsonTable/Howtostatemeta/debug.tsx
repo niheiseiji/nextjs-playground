@@ -1,5 +1,6 @@
 import React from 'react';
 
+// debug用のデータ表示
 export const Debug = ({ inputValue, tableData, hotTableRef }) => {
     return (
         <div style={{ backgroundColor: '#f0f0f0', padding: '10px', border: '1px solid #ccc' }}>

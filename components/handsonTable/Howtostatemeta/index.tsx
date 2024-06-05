@@ -9,8 +9,10 @@ import { Debug } from './debug';
 const HandsontableComponent = () => {
     const hotTableRef = useRef(null);
     const [inputValue, setInputValue] = useState('');
+    // 以降すべてのデータはステートとして扱う。initialDataは使わない。
     const [tableData, setTableData] = useState(initialData);
 
+    // 初期表示のときにだけ実行して、計算とメタデータのレンダリングを更新する
     useEffect(() => {
         const hotInstance = hotTableRef.current.hotInstance;
         if (hotInstance) {
@@ -18,8 +20,9 @@ const HandsontableComponent = () => {
             hotInstance.loadData(updatedData);
             applyMetadata(updatedData, hotInstance); // 初期化時にメタデータを設定
         }
-    }, [tableData]);
+    }, []);
 
+    // テーブルデータ変更後のフック
     const handleAfterChange = (changes, source) => {
         if (changes) {
             const hotInstance = hotTableRef.current.hotInstance;
@@ -38,6 +41,7 @@ const HandsontableComponent = () => {
         }
     };
 
+    // 別のステートが更新されたときに、コンポーネントが再レンダリングされてテーブル側のメタデータが消えてしまう事象への対策
     useEffect(() => {
         const hotInstance = hotTableRef.current.hotInstance;
         if (hotInstance) {
@@ -45,6 +49,7 @@ const HandsontableComponent = () => {
         }
     }, [inputValue]); // inputValueの変更を監視し、メタデータを再設定
 
+    // debug
     const handleUpdateTable = () => {
         const hotInstance = hotTableRef.current.hotInstance;
         if (hotInstance) {
@@ -62,7 +67,6 @@ const HandsontableComponent = () => {
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Enter value"
             />
-            <button onClick={handleUpdateTable}>Update Table Data</button>
             <HotTable
                 ref={hotTableRef}
                 imeFastEdit={true}
@@ -84,15 +88,14 @@ const HandsontableComponent = () => {
                     { type: 'numeric', readOnly: true }
                 ]}
             />
+
+            {/* debug */}
+            <button onClick={handleUpdateTable}>Update Table Data</button>
             <Debug inputValue={inputValue} tableData={tableData} hotTableRef={hotTableRef} />
             <style>
                 {`
                     .blue-background {
                         background-color: blue !important;
-                        color: white !important;
-                    }
-                    .red-background {
-                        background-color: red !important;
                         color: white !important;
                     }
                 `}

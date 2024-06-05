@@ -1,3 +1,4 @@
+// 行合計と小計行の計算処理を定義する
 export const calculateSums = (data) => {
     const newData = data.map(row => [...row]);
     newData.forEach((row, rowIndex) => {

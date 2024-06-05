@@ -1,3 +1,4 @@
+// メタデータをセットする
 export const applyMetadata = (data, hotInstance) => {
     data.forEach((rowData, rowIndex) => {
         if (rowData[0] === 'AAA') {
