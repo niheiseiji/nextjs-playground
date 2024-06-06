@@ -8,11 +8,9 @@ import { Debug } from './debug';
 
 const HandsontableComponent = () => {
     const hotTableRef = useRef(null);
-    const [inputValue, setInputValue] = useState('');
-    // 以降すべてのデータはステートとして扱う。initialDataは使わない。
+    const inputRef = useRef(null);
     const [tableData, setTableData] = useState(initialData);
 
-    // 初期表示のときにだけ実行して、計算とメタデータのレンダリングを更新する
     useEffect(() => {
         const hotInstance = hotTableRef.current.hotInstance;
         if (hotInstance) {
@@ -22,9 +20,7 @@ const HandsontableComponent = () => {
         }
     }, [tableData]);
 
-    // テーブルデータ変更後のフック
     const handleAfterChange = (changes, source) => {
-        console.log('handleAfterChange')
         if (changes) {
             const hotInstance = hotTableRef.current.hotInstance;
             const newData = [...hotInstance.getData()];
@@ -42,32 +38,22 @@ const HandsontableComponent = () => {
         }
     };
 
-    // 別のステートが更新されたときに、コンポーネントが再レンダリングされてテーブル側のメタデータが消えてしまう事象への対策
-    useEffect(() => {
+    const handleGetData = () => {
+        const inputValue = inputRef.current.value;
         const hotInstance = hotTableRef.current.hotInstance;
-        if (hotInstance) {
-            applyMetadata(tableData, hotInstance); // inputValueの変更時にメタデータを再設定
-        }
-    }, [inputValue]); // inputValueの変更を監視し、メタデータを再設定
-
-    // debug
-    const handleUpdateTable = () => {
-        const hotInstance = hotTableRef.current.hotInstance;
-        if (hotInstance) {
-            const updatedData = calculateSums(tableData);
-            setTableData(updatedData);
-            applyMetadata(updatedData, hotInstance);
-        }
+        const tableData = hotInstance.getData();
+        console.log('Input Value:', inputValue);
+        console.log('Table Data:', tableData);
     };
 
     return (
         <div>
             <input
                 type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
+                ref={inputRef}
                 placeholder="Enter value"
             />
+            <button onClick={handleGetData}>Get Data</button>
             <HotTable
                 ref={hotTableRef}
                 imeFastEdit={true}
@@ -91,8 +77,7 @@ const HandsontableComponent = () => {
             />
 
             {/* debug */}
-            <button onClick={handleUpdateTable}>Update Table Data</button>
-            <Debug inputValue={inputValue} tableData={tableData} hotTableRef={hotTableRef} />
+            <Debug tableData={tableData} hotTableRef={hotTableRef} />
             <style>
                 {`
                     .blue-background {
