@@ -9,7 +9,7 @@ import ButtonRenderer from "@/components/handsonTable/customRenderer/button";
 import ReCulcComponent from "@/components/handsonTable/customRenderer/ReCulcComponent";
 import CalculattionSort from "@/components/handsonTable/CalculationSort";
 import IMEcontrol from "@/components/handsonTable/IMEcontrol";
-import Howtostatemeta from "@/components/handsonTable/Howtostatemeta";
+import Howtostatemeta from "@/components/handsonTable/Howtostatemeta/index";
 
 // register Handsontable's modules
 registerAllModules();

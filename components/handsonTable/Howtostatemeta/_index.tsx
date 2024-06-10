@@ -2,25 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import 'handsontable/dist/handsontable.full.min.css';
 
-import numbro from 'numbro';
-import jaJP from 'numbro/languages/ja-JP';
-import { registerAllModules } from 'handsontable/registry';
-
-// register Handsontable's modules
-registerAllModules();
-
-// register the languages you need
-numbro.registerLanguage(jaJP);
-
 const HandsontableComponent = () => {
     const hotTableRef = useRef(null);
     const [inputValue, setInputValue] = useState('');
-    const tableData = [
+    const [tableData, setTableData] = useState([
         ['AAA', 8, 0, 0],
         ['BBB', 0, 7, 0],
         ['AAA', 0, 0, 0],
         ['Total', 8, 7, 15]
-    ];
+    ]);
 
     const calculateSums = (data) => {
         const newData = data.map(row => [...row]);
@@ -58,8 +48,7 @@ const HandsontableComponent = () => {
         const hotInstance = hotTableRef.current.hotInstance;
         if (hotInstance) {
             const updatedData = calculateSums(tableData);
-            /* hotInstance.loadData(updatedData) */
-            hotInstance.updateSettings({ data: updatedData })
+            hotInstance.loadData(updatedData);
             applyMetadata(updatedData, hotInstance); // 初期化時にメタデータを設定
         }
     }, [tableData]);
@@ -77,8 +66,7 @@ const HandsontableComponent = () => {
 
             // 小計行の更新
             const updatedData = calculateSums(newData);
-            /* hotInstance.loadData(updatedData) */
-            hotInstance.updateSettings({ data: updatedData })
+            setTableData(updatedData);
             applyMetadata(updatedData, hotInstance); // メタデータを再設定
         }
     };
@@ -90,8 +78,23 @@ const HandsontableComponent = () => {
         }
     }, [inputValue]); // inputValueの変更を監視し、メタデータを再設定
 
+    const handleUpdateTable = () => {
+        const hotInstance = hotTableRef.current.hotInstance;
+        if (hotInstance) {
+            const updatedData = calculateSums(tableData);
+            setTableData(updatedData);
+            applyMetadata(updatedData, hotInstance);
+        }
+    };
+
     return (
         <div>
+            <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Enter value"
+            />
             <HotTable
                 ref={hotTableRef}
                 imeFastEdit={true}
@@ -113,6 +116,20 @@ const HandsontableComponent = () => {
                     { type: 'numeric', readOnly: true }
                 ]}
             />
+            <div style={{ backgroundColor: '#f0f0f0', padding: '10px', border: '1px solid #ccc' }}>
+                <button onClick={handleUpdateTable}>Update Table Data</button>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <div style={{ border: '1px solid #ccc', padding: '10px' }}>
+                        <strong>Input Value:</strong> {inputValue}
+                    </div>
+                    <div style={{ border: '1px solid #ccc', padding: '10px' }}>
+                        <strong>Table Data State:</strong> {JSON.stringify(tableData)}
+                    </div>
+                    <div style={{ border: '1px solid #ccc', padding: '10px' }}>
+                        <strong>Table Data:</strong> {JSON.stringify(hotTableRef.current?.hotInstance?.getData() || [])}
+                    </div>
+                </div>
+            </div>
             <style>
                 {`
           .blue-background {
