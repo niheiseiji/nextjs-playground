@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import 'handsontable/dist/handsontable.full.min.css';
-
 import numbro from 'numbro';
 import jaJP from 'numbro/languages/ja-JP';
 import { registerAllModules } from 'handsontable/registry';
@@ -15,9 +14,11 @@ numbro.registerLanguage(jaJP);
 const HandsontableComponent = () => {
     const hotTableRef = useRef(null);
     const [inputValue, setInputValue] = useState('');
+    const [showError, setShowError] = useState(false);
+
     const tableData = [
-        ['AAA', 8, 0, 0],
-        ['BBB', 0, 7, 0],
+        ['AAA', 8, 0, 8],
+        ['BBB', 0, 7, 7],
         ['AAA', 0, 0, 0],
         ['Total', 8, 7, 15]
     ];
@@ -49,6 +50,8 @@ const HandsontableComponent = () => {
         data.forEach((rowData, rowIndex) => {
             if (rowData[0] === 'AAA') {
                 hotInstance.setCellMeta(rowIndex, 0, 'className', 'blue-background');
+            } else {
+                hotInstance.removeCellMeta(rowIndex, 0, 'className');
             }
         });
         hotInstance.render(); // メタデータを反映するために再描画
@@ -58,11 +61,10 @@ const HandsontableComponent = () => {
         const hotInstance = hotTableRef.current.hotInstance;
         if (hotInstance) {
             const updatedData = calculateSums(tableData);
-            /* hotInstance.loadData(updatedData) */
             hotInstance.updateSettings({ data: updatedData })
             applyMetadata(updatedData, hotInstance); // 初期化時にメタデータを設定
         }
-    }, [tableData]);
+    }, []); // 初期化時のみ実行
 
     const handleAfterChange = (changes, source) => {
         if (changes) {
@@ -77,25 +79,32 @@ const HandsontableComponent = () => {
 
             // 小計行の更新
             const updatedData = calculateSums(newData);
-            /* hotInstance.loadData(updatedData) */
             hotInstance.updateSettings({ data: updatedData })
             applyMetadata(updatedData, hotInstance); // メタデータを再設定
         }
     };
 
-    useEffect(() => {
-        const hotInstance = hotTableRef.current.hotInstance;
-        if (hotInstance) {
-            applyMetadata(tableData, hotInstance); // inputValueの変更時にメタデータを再設定
+    const handleBlur = () => {
+        if (inputValue.trim() === '') {
+            setShowError(true);
+        } else {
+            setShowError(false);
         }
-    }, [inputValue]); // inputValueの変更を監視し、メタデータを再設定
+    };
 
     return (
         <div>
+            <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onBlur={handleBlur}
+            />
+            {showError && <div style={{ color: 'red' }}>値を入力してください。</div>}
             <HotTable
                 ref={hotTableRef}
                 imeFastEdit={true}
-                data={tableData}
+                data={calculateSums(tableData)}
                 colHeaders={['Option', 'Value 1', 'Value 2', 'Sum']}
                 rowHeaders={true}
                 contextMenu={true}
@@ -115,11 +124,11 @@ const HandsontableComponent = () => {
             />
             <style>
                 {`
-          .blue-background {
-            background-color: blue !important;
-            color: white !important;
-          }
-        `}
+                    .blue-background {
+                        background-color: blue !important;
+                        color: white !important;
+                    }
+                `}
             </style>
         </div>
     );

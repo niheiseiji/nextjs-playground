@@ -9,7 +9,7 @@ import ButtonRenderer from "@/components/handsonTable/customRenderer/button";
 import ReCulcComponent from "@/components/handsonTable/customRenderer/ReCulcComponent";
 import CalculattionSort from "@/components/handsonTable/CalculationSort";
 import IMEcontrol from "@/components/handsonTable/IMEcontrol";
-import Howtostatemeta from "@/components/handsonTable/Howtostatemeta/index";
+import ParentComponent from "@/components/handsonTable/Howtostatemeta/ParentComponent";
 
 // register Handsontable's modules
 registerAllModules();
@@ -19,7 +19,7 @@ const App = () => {
     <>
       {/* <IMEcontrol/> */}
       {/* <CalculattionSort numRows={20}/> */}
-      <Howtostatemeta/>
+      <ParentComponent/>
       {/* <KeyValueAutocomplete />
       <HandsontableComponent />
       <CalculateSample />
